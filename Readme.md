@@ -1,6 +1,6 @@
 Doesn't allow players to set some items as quick keys
 
-Based on code by [David Cernat](https://github.com/davidcernat) and Learwolf.
+Based on code by [David Cernat](https://github.com/davidcernat) and [Learwolf](https://github.com/Learwolf).
 
 Requires [DataManager](https://github.com/tes3mp-scripts/DataManager)
 
