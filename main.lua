@@ -3,9 +3,10 @@ local QuickKeyCleaner = {}
 -- Setup
 QuickKeyCleaner.scriptName = 'QuickKeyCleaner'
 QuickKeyCleaner.defaultConfig = {
-    keyOrder = { "removeRefIds", },
+    keyOrder = { "removeRefIds", "restrictedCells", "hotkeyPlaceholder" },
     values = {
         removeRefIds = {},
+        restrictedCells = {},
         hotkeyPlaceholder = {
             type = "miscellaneous",
             refId = "hotkey_placeholder",
@@ -25,6 +26,11 @@ for i, v in pairs(QuickKeyCleaner.config.removeRefIds) do
     QuickKeyCleaner.removeRefIds[v] = true
 end
 
+QuickKeyCleaner.restrictedCells = {}
+for i, v in pairs(QuickKeyCleaner.config.restrictedCells) do
+    QuickKeyCleaner.restrictedCells[v] = true
+end
+
 QuickKeyCleaner.hotkeyPlaceholder = QuickKeyCleaner.config.hotkeyPlaceholder
 QuickKeyCleaner.hotkeyPlaceholder.count = 1
 
@@ -42,6 +48,10 @@ function QuickKeyCleaner.getEmptyHotkey()
         keyType = 0,
         itemId = QuickKeyCleaner.config.hotkeyPlaceholder.refId
     }
+end
+
+function QuickKeyCleaner.isCellRestricted(cellName)
+    return QuickKeyCleaner.restrictedCells[cellName] == true
 end
 
 function QuickKeyCleaner.isBanned(refId)
@@ -100,27 +110,47 @@ function QuickKeyCleaner.filterQuickKeys(pid)
 end
 
 -- Hooks
+QuickKeyCleaner.allSlots = { 1, 2, 3, 4, 5, 6, 7, 8, 9}
+customEventHooks.registerHandler("OnPlayerCellChange", function(eventStatus, pid)
+    local currentCell = tes3mp.GetCell(pid)
+    local cellCheck = QuickKeyCleaner.isCellRestricted(currentCell)
+    if cellCheck then
+        local allSlots = QuickKeyCleaner.allSlots
+        QuickKeyCleaner.clearSlots(pid, allSlots)
+    end
+end)
+
 customEventHooks.registerValidator("OnPlayerQuickKeys", function(eventStatus, pid)
     local slots = {}
-    tes3mp.LogMessage(2, "QUICK KEYS")
-    for index = 0, tes3mp.GetQuickKeyChangesSize(pid) - 1 do
-        tes3mp.LogMessage(2, tes3mp.GetQuickKeyItemId(pid, index))
-        if QuickKeyCleaner.isBanned(tes3mp.GetQuickKeyItemId(pid, index)) then
-            tes3mp.LogMessage(2, "BANNED")
-            local slot = tes3mp.GetQuickKeySlot(pid, index)
-            table.insert(slots, slot)
-        end
-    end
-
-    if #slots > 0 then
-        tes3mp.LogMessage(2, "CLEARING SLOTS")
-        QuickKeyCleaner.clearSlots(pid, slots)
+    local currentCell = tes3mp.GetCell(pid)
+    local cellCheck = QuickKeyCleaner.isCellRestricted(currentCell)
+    if cellCheck then
+        local allSlots = QuickKeyCleaner.allSlots
+        QuickKeyCleaner.clearSlots(pid, allSlots)
         return customEventHooks.makeEventStatus(false, false)
+    else
+        for index = 0, tes3mp.GetQuickKeyChangesSize(pid) - 1 do
+            tes3mp.LogMessage(2, tes3mp.GetQuickKeyItemId(pid, index))
+            if QuickKeyCleaner.isBanned(tes3mp.GetQuickKeyItemId(pid, index)) then
+                local slot = tes3mp.GetQuickKeySlot(pid, index)
+                table.insert(slots, slot)
+            end
+        end
+        if #slots > 0 then
+            QuickKeyCleaner.clearSlots(pid, slots)
+            return customEventHooks.makeEventStatus(false, false)
+        end
     end
 end)
 
 customEventHooks.registerHandler("OnPlayerAuthentified", function(eventStatus, pid)
-    QuickKeyCleaner.filterQuickKeys(pid)
+    local currentCell = tes3mp.GetCell(pid)
+    local cellCheck = QuickKeyCleaner.isCellRestricted(currentCell)
+    if cellCheck then
+        QuickKeyCleaner.clearSlots(pid, QuickKeyCleaner.allSlots)
+    else
+        QuickKeyCleaner.filterQuickKeys(pid)
+    end
 end)
 
 customEventHooks.registerHandler("OnServerPostInit", function(eventStatus, pid)

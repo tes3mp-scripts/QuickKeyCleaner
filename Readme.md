@@ -1,6 +1,6 @@
 Doesn't allow players to set some items as quick keys
 
-Based on code by [David Cernat](https://github.com/davidcernat)
+Based on code by [David Cernat](https://github.com/davidcernat) and Learwolf.
 
 Requires [DataManager](https://github.com/tes3mp-scripts/DataManager)
 
@@ -8,6 +8,7 @@ Has to be `require`d before any of the modules that use it.
 
 You can find the configuration file in `server/data/custom/__config_QuickKeyCleaner.json` after first server launch.
 * `removeRefIds` array of `refId`s that you want to be restricted. Default `[]`.
+* `restrictedCells` array of cell names in which players will always have empty quick keys. Default `[]`.
 * `hotkeyPlaceholder`  
   * `type` type of permanent custom record used for the item replacing restricted hotkey items. Default `miscellaneous`.
   * `refId` of the placeholder item. Default `hotkey_placeholder`.
