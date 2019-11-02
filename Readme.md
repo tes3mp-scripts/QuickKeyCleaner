@@ -1,5 +1,7 @@
 Doesn't allow players to set some items as quick keys
 
+Based on code by [David Cernat](https://github.com/davidcernat)
+
 Requires [DataManager](https://github.com/tes3mp-scripts/DataManager)
 
 Has to be `require`d before any of the modules that use it.
