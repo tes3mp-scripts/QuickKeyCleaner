@@ -18,6 +18,7 @@ You can find the configuration file in `server/data/custom/__config_QuickKeyClea
 Using it in your modules
 ---
 Methods:
+* `registerFilter(func)` add a filter function that will be called every time a `refId` is checked for being restricted. If the function returns false for a `refId`, the item will be considered restricted.
 * `banItem(refId)` add an item to the restricted list dynamically. Does not change the config file and is not saved between restarts.
 * `unbanItem(refId)` remove an item from the restricted list dynamically. Does not change the config file and is not saved between restarts.
 * `filterQuickKeys(pid)` checks player data for restricted quick keys and clears them.

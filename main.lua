@@ -34,6 +34,8 @@ end
 QuickKeyCleaner.hotkeyPlaceholder = QuickKeyCleaner.config.hotkeyPlaceholder
 QuickKeyCleaner.hotkeyPlaceholder.count = 1
 
+QuickKeyCleaner.filters = {}
+
 -- Methods
 function QuickKeyCleaner.createHotkeyPlaceholder()
     local recordStore = RecordStores[QuickKeyCleaner.config.hotkeyPlaceholder.type]
@@ -54,8 +56,18 @@ function QuickKeyCleaner.isCellRestricted(cellName)
     return QuickKeyCleaner.restrictedCells[cellName] == true
 end
 
+function QuickKeyCleaner.registerFilter(func)
+    table.insert(QuickKeyCleaner, func)
+end
+
 function QuickKeyCleaner.isBanned(refId)
-    return QuickKeyCleaner.removeRefIds[refId] == true
+    if QuickKeyCleaner.removeRefIds[refId] == true then
+        return true
+    end
+    for _, f in pairs(QuickKeyCleaner.filters) do
+        if not f(refId) then return true
+    end
+    return false
 end
 
 function QuickKeyCleaner.banItem(refId)
