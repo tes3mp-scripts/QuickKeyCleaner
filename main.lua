@@ -65,7 +65,9 @@ function QuickKeyCleaner.isBanned(refId)
         return true
     end
     for _, f in pairs(QuickKeyCleaner.filters) do
-        if not f(refId) then return true
+        if not f(refId) then
+            return true
+        end
     end
     return false
 end
